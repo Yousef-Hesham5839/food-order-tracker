@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "18363203562",
+    "project_id": "food-order-tracker-78aa0",
+    "storage_bucket": "food-order-tracker-78aa0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:18363203562:android:e1955064668a92cf4bbc93",
+        "android_client_info": {
+          "package_name": "com.yousef.food_order_tracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1kRWovawNkDV5cbkbHSc9ZDGZC8V73Ts"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
