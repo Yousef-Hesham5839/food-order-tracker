@@ -5,4 +5,5 @@ abstract class OrderRepository {
   Stream<OrderEntity> watchOrder(String orderId);
   Future<List<OrderEntity>> getMyOrders(String customerId);
   Future<void> updateOrderStatus(String orderId, String newStatus);
+  Stream<List<OrderEntity>> watchAllOrders();
 }

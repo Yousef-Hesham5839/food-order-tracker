@@ -68,4 +68,16 @@ class OrderRemoteDataSource {
       throw ServerException(e.toString());
     }
   }
+
+  Stream<List<OrderModel>> watchAllOrders() {
+    return _firestore
+        .collection(AppConstants.ordersCollection)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .map((doc) => OrderModel.fromJson(doc.data(), doc.id))
+          .toList();
+    });
+  }
 }

@@ -4,14 +4,15 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../injection_container.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
-import '../bloc/menu_bloc.dart';
-import '../bloc/menu_event.dart';
-import '../bloc/menu_state.dart';
-import '../widgets/menu_item_card.dart';
 import '../../../cart/presentation/bloc/cart_bloc.dart';
 import '../../../cart/presentation/bloc/cart_event.dart';
 import '../../../cart/presentation/bloc/cart_state.dart';
 import '../../../cart/presentation/screens/cart_screen.dart';
+import '../../../orders/presentation/screens/admin_orders_screen.dart';
+import '../bloc/menu_bloc.dart';
+import '../bloc/menu_event.dart';
+import '../bloc/menu_state.dart';
+import '../widgets/menu_item_card.dart';
 
 class MenuScreen extends StatelessWidget {
   const MenuScreen({super.key});
@@ -32,47 +33,63 @@ class MenuScreen extends StatelessWidget {
           ),
           actions: [
             IconButton(
+              icon: const Icon(Icons.admin_panel_settings_outlined, color: AppTheme.primaryColor),
+              tooltip: 'Admin Dashboard',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AdminOrdersScreen()),
+                );
+              },
+            ),
+            BlocBuilder<CartBloc, CartState>(
+              builder: (context, cartState) {
+                return Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.shopping_bag_outlined),
+                      tooltip: 'Cart',
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const CartScreen()),
+                        );
+                      },
+                    ),
+                    if (cartState.totalItemCount > 0)
+                      Positioned(
+                        right: 8,
+                        top: 8,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: AppTheme.primaryColor,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                          child: Text(
+                            '${cartState.totalItemCount}',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
+            IconButton(
               icon: const Icon(Icons.logout, color: AppTheme.textSecondary),
+              tooltip: 'Logout',
               onPressed: () {
                 context.read<AuthBloc>().add(LogoutEvent());
               },
             ),
-            BlocBuilder<CartBloc, CartState>(
-             builder: (context, cartState) {
-               return Stack(
-                 alignment: Alignment.center,
-                 children: [
-                   IconButton(
-                     icon: const Icon(Icons.shopping_bag_outlined),
-                     onPressed: () {
-                       Navigator.push(
-                         context,
-                         MaterialPageRoute(builder: (_) => const CartScreen()),
-                       );
-                     },
-                   ),
-                   if (cartState.totalItemCount > 0)
-                     Positioned(
-                       right: 8,
-                       top: 8,
-                       child: Container(
-                         padding: const EdgeInsets.all(4),
-                         decoration: const BoxDecoration(
-                           color: AppTheme.primaryColor,
-                           shape: BoxShape.circle,
-                         ),
-                         constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                         child: Text(
-                           '${cartState.totalItemCount}',
-                           style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
-                           textAlign: TextAlign.center,
-                         ),
-                       ),
-                     ),
-                 ],
-               );
-             },
-           ),
           ],
         ),
         body: BlocBuilder<MenuBloc, MenuState>(
@@ -86,7 +103,10 @@ class MenuScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(state.message, style: const TextStyle(color: AppTheme.secondaryColor)),
+                    Text(
+                      state.message,
+                      style: const TextStyle(color: AppTheme.secondaryColor),
+                    ),
                     const SizedBox(height: 12),
                     ElevatedButton(
                       onPressed: () => context.read<MenuBloc>().add(FetchMenuEvent()),
@@ -98,8 +118,10 @@ class MenuScreen extends StatelessWidget {
             } else if (state is MenuLoaded) {
               if (state.items.isEmpty) {
                 return const Center(
-                  child: Text('No food items found in the menu! 🍔',
-                      style: TextStyle(color: AppTheme.textSecondary, fontSize: 16)),
+                  child: Text(
+                    'No food items found in the menu! 🍔',
+                    style: TextStyle(color: AppTheme.textSecondary, fontSize: 16),
+                  ),
                 );
               }
               return RefreshIndicator(

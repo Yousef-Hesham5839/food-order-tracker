@@ -32,3 +32,5 @@ class UpdateOrderStatusEvent extends OrderEvent {
   @override
   List<Object?> get props => [orderId, newStatus];
 }
+
+class WatchAllOrdersEvent extends OrderEvent {}

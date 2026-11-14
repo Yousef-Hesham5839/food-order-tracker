@@ -38,4 +38,9 @@ class OrderRepositoryImpl implements OrderRepository {
   Future<void> updateOrderStatus(String orderId, String newStatus) {
     return remoteDataSource.updateOrderStatus(orderId, newStatus);
   }
+
+  @override
+  Stream<List<OrderEntity>> watchAllOrders() {
+    return remoteDataSource.watchAllOrders();
+  }
 }
