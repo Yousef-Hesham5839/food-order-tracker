@@ -7,6 +7,7 @@ import 'features/menu/data/datasources/menu_remote_datasource.dart';
 import 'features/menu/data/repositories/menu_repository_impl.dart';
 import 'features/menu/domain/repositories/menu_repository.dart';
 import 'features/menu/presentation/bloc/menu_bloc.dart';
+import 'features/cart/presentation/bloc/cart_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -18,4 +19,5 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<MenuRemoteDataSource>(() => MenuRemoteDataSource());
   sl.registerLazySingleton<MenuRepository>(() => MenuRepositoryImpl(sl()));
   sl.registerFactory(() => MenuBloc(sl()));
+  sl.registerLazySingleton(() => CartBloc());
 }

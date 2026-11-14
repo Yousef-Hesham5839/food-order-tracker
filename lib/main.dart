@@ -8,6 +8,7 @@ import 'features/auth/presentation/bloc/auth_state.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
 import 'injection_container.dart';
 import 'features/menu/presentation/screens/menu_screen.dart';
+import 'features/cart/presentation/bloc/cart_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,8 +22,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<AuthBloc>()..add(CheckAuthEvent()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => sl<AuthBloc>()..add(CheckAuthEvent())),
+        BlocProvider(create: (_) => sl<CartBloc>()),
+      ],
       child: MaterialApp(
         title: 'FoodTrack',
         debugShowCheckedModeBanner: false,

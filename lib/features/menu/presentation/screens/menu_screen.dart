@@ -8,6 +8,10 @@ import '../bloc/menu_bloc.dart';
 import '../bloc/menu_event.dart';
 import '../bloc/menu_state.dart';
 import '../widgets/menu_item_card.dart';
+import '../../../cart/presentation/bloc/cart_bloc.dart';
+import '../../../cart/presentation/bloc/cart_event.dart';
+import '../../../cart/presentation/bloc/cart_state.dart';
+import '../../../cart/presentation/screens/cart_screen.dart';
 
 class MenuScreen extends StatelessWidget {
   const MenuScreen({super.key});
@@ -33,6 +37,42 @@ class MenuScreen extends StatelessWidget {
                 context.read<AuthBloc>().add(LogoutEvent());
               },
             ),
+            BlocBuilder<CartBloc, CartState>(
+             builder: (context, cartState) {
+               return Stack(
+                 alignment: Alignment.center,
+                 children: [
+                   IconButton(
+                     icon: const Icon(Icons.shopping_bag_outlined),
+                     onPressed: () {
+                       Navigator.push(
+                         context,
+                         MaterialPageRoute(builder: (_) => const CartScreen()),
+                       );
+                     },
+                   ),
+                   if (cartState.totalItemCount > 0)
+                     Positioned(
+                       right: 8,
+                       top: 8,
+                       child: Container(
+                         padding: const EdgeInsets.all(4),
+                         decoration: const BoxDecoration(
+                           color: AppTheme.primaryColor,
+                           shape: BoxShape.circle,
+                         ),
+                         constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                         child: Text(
+                           '${cartState.totalItemCount}',
+                           style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
+                           textAlign: TextAlign.center,
+                         ),
+                       ),
+                     ),
+                 ],
+               );
+             },
+           ),
           ],
         ),
         body: BlocBuilder<MenuBloc, MenuState>(
@@ -74,10 +114,11 @@ class MenuScreen extends StatelessWidget {
                     return MenuItemCard(
                       item: item,
                       onAddToCart: () {
+                        context.read<CartBloc>().add(AddToCartEvent(item));
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text('${item.name} added to cart!'),
-                            duration: const Duration(seconds: 1),
+                            duration: const Duration(milliseconds: 600),
                             backgroundColor: AppTheme.primaryColor,
                           ),
                         );
