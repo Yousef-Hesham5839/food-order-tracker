@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:food_order_tracker/core/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,6 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'FoodTrack',
       debugShowCheckedModeBanner: false,
+      theme: AppTheme.darkTheme,
       home: const Scaffold(
         body: Center(
           child: Text('FoodTrack 🍕'),
