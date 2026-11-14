@@ -8,6 +8,10 @@ import 'features/menu/data/repositories/menu_repository_impl.dart';
 import 'features/menu/domain/repositories/menu_repository.dart';
 import 'features/menu/presentation/bloc/menu_bloc.dart';
 import 'features/cart/presentation/bloc/cart_bloc.dart';
+import 'features/orders/data/datasources/order_remote_datasource.dart';
+import 'features/orders/data/repositories/order_repository_impl.dart';
+import 'features/orders/domain/repositories/order_repository.dart';
+import 'features/orders/presentation/bloc/order_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -20,4 +24,7 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<MenuRepository>(() => MenuRepositoryImpl(sl()));
   sl.registerFactory(() => MenuBloc(sl()));
   sl.registerLazySingleton(() => CartBloc());
+  sl.registerLazySingleton<OrderRemoteDataSource>(() => OrderRemoteDataSource());
+  sl.registerLazySingleton<OrderRepository>(() => OrderRepositoryImpl(sl()));
+  sl.registerFactory(() => OrderBloc(sl()));
 }
