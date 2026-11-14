@@ -17,12 +17,30 @@ class OrderTrackingScreen extends StatefulWidget {
   State<OrderTrackingScreen> createState() => _OrderTrackingScreenState();
 }
 
-class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
+class _OrderTrackingScreenState extends State<OrderTrackingScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+
   @override
   void initState() {
     super.initState();
-    // بدء الاستماع للتغيرات اللحظية في هذا الطلب
     context.read<OrderBloc>().add(WatchOrderEvent(widget.orderId));
+
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+
+    _pulseAnimation = Tween<double>(begin: 0.2, end: 0.7).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
   }
 
   @override
@@ -70,20 +88,15 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Order Header Card
                   _buildHeaderCard(order),
                   const SizedBox(height: 24),
-
-                  // Real-time Status Stepper
                   const Text(
-                    'Order Status',
+                    'Live Order Status',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
                   _buildTimeline(order),
                   const SizedBox(height: 24),
-
-                  // Items Summary Card
                   _buildItemsCard(order),
                 ],
               ),
@@ -96,22 +109,29 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
   }
 
   Widget _buildHeaderCard(OrderEntity order) {
+    final statusColor = StatusHelper.getColor(order.status);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppTheme.surfaceColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.primaryColor.withOpacity(0.3)),
+        border: Border.all(color: statusColor.withOpacity(0.3)),
       ),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: AppTheme.primaryColor.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(12),
+              color: statusColor.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(Icons.timer_outlined, color: AppTheme.primaryColor, size: 32),
+            child: Icon(
+              StatusHelper.getIcon(order.status),
+              color: statusColor,
+              size: 32,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -119,12 +139,14 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Order #${order.id.substring(0, 6).toUpperCase()}',
+                  'Order #${order.id.length >= 6 ? order.id.substring(0, 6).toUpperCase() : order.id}',
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Estimated: ~${order.estimatedTime} mins',
+                  order.status == 'delivered'
+                      ? 'Delivered safely 🎉'
+                      : 'Estimated: ~${order.estimatedTime} mins',
                   style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
                 ),
               ],
@@ -133,13 +155,13 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: StatusHelper.getColor(order.status).withOpacity(0.2),
+              color: statusColor.withOpacity(0.2),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
               StatusHelper.getLabel(order.status),
               style: TextStyle(
-                color: StatusHelper.getColor(order.status),
+                color: statusColor,
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
               ),
@@ -155,7 +177,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
     final currentIndex = statuses.indexOf(order.status);
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 14),
       decoration: BoxDecoration(
         color: AppTheme.surfaceColor,
         borderRadius: BorderRadius.circular(16),
@@ -167,7 +189,6 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
           final isCurrent = currentIndex == index;
           final isLast = index == statuses.length - 1;
 
-          // البحث عن تاريخ ووقت الانتقال لهذه الحالة لو موجود في history
           final historyEntry = order.statusHistory.cast<OrderStatusHistory?>().firstWhere(
                 (h) => h?.status == status,
                 orElse: () => null,
@@ -176,35 +197,41 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Icon + Connector Column
+              // Column of Animated Dot/Icon + Connecting line
               Column(
                 children: [
-                  Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: isCompleted ? AppTheme.primaryColor : AppTheme.cardColor,
-                      boxShadow: isCurrent
-                          ? [
-                              BoxShadow(
-                                color: AppTheme.primaryColor.withOpacity(0.5),
-                                blurRadius: 10,
-                                spreadRadius: 2,
-                              )
-                            ]
-                          : [],
-                    ),
-                    child: Icon(
-                      StatusHelper.getIcon(status),
-                      color: isCompleted ? Colors.white : AppTheme.textSecondary,
-                      size: 20,
-                    ),
+                  AnimatedBuilder(
+                    animation: _pulseAnimation,
+                    builder: (context, child) {
+                      return Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isCompleted ? AppTheme.primaryColor : AppTheme.cardColor,
+                          boxShadow: isCurrent
+                              ? [
+                                  BoxShadow(
+                                    color: AppTheme.primaryColor.withOpacity(_pulseAnimation.value),
+                                    blurRadius: 14,
+                                    spreadRadius: 3,
+                                  ),
+                                ]
+                              : [],
+                        ),
+                        child: Icon(
+                          StatusHelper.getIcon(status),
+                          color: isCompleted ? Colors.white : AppTheme.textSecondary,
+                          size: 20,
+                        ),
+                      );
+                    },
                   ),
                   if (!isLast)
-                    Container(
-                      width: 2,
-                      height: 36,
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 600),
+                      width: 2.5,
+                      height: 38,
                       color: currentIndex > index
                           ? AppTheme.primaryColor
                           : AppTheme.cardColor,
@@ -212,7 +239,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
                 ],
               ),
               const SizedBox(width: 16),
-              // Status Label & Time
+              // Status label & Timestamp
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8),
@@ -257,7 +284,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Order Summary',
+            'Order Items Summary',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const Divider(height: 24, color: AppTheme.cardColor),
@@ -273,7 +300,10 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
                   ),
                   Text(
                     '${(item.price * item.quantity).toStringAsFixed(2)} EGP',
-                    style: const TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      color: AppTheme.primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
