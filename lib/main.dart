@@ -7,6 +7,7 @@ import 'features/auth/presentation/bloc/auth_event.dart';
 import 'features/auth/presentation/bloc/auth_state.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
 import 'injection_container.dart';
+import 'features/menu/presentation/screens/menu_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,9 +30,7 @@ class MyApp extends StatelessWidget {
         home: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
             if (state is Authenticated) {
-              return const Scaffold(
-                body: Center(child: Text('✅ Logged In!')),
-              );
+              return const MenuScreen();
             }
             return const LoginScreen();
           },
