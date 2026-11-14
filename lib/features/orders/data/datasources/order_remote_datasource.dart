@@ -17,6 +17,7 @@ class OrderRemoteDataSource {
     }
   }
 
+  // Real-time Stream for tracking
   Stream<OrderModel> watchOrder(String orderId) {
     return _firestore
         .collection(AppConstants.ordersCollection)
@@ -30,17 +31,31 @@ class OrderRemoteDataSource {
     });
   }
 
+  Stream<List<OrderModel>> watchAllOrders() {
+    return _firestore
+        .collection(AppConstants.ordersCollection)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .map((doc) => OrderModel.fromJson(doc.data(), doc.id))
+          .toList();
+    });
+  }
+
   Future<List<OrderModel>> getMyOrders(String customerId) async {
     try {
       final query = await _firestore
           .collection(AppConstants.ordersCollection)
           .where('customerId', isEqualTo: customerId)
-          .orderBy('createdAt', descending: true)
           .get();
 
-      return query.docs
+      final orders = query.docs
           .map((doc) => OrderModel.fromJson(doc.data(), doc.id))
           .toList();
+
+      orders.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return orders;
     } catch (e) {
       throw ServerException(e.toString());
     }
@@ -67,17 +82,5 @@ class OrderRemoteDataSource {
     } catch (e) {
       throw ServerException(e.toString());
     }
-  }
-
-  Stream<List<OrderModel>> watchAllOrders() {
-    return _firestore
-        .collection(AppConstants.ordersCollection)
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((snapshot) {
-      return snapshot.docs
-          .map((doc) => OrderModel.fromJson(doc.data(), doc.id))
-          .toList();
-    });
   }
 }

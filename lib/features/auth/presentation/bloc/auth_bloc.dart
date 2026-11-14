@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/repositories/auth_repository.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
+import '/../core/errors/exceptions.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository authRepository;
@@ -13,7 +14,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LogoutEvent>(_onLogout);
   }
 
-  Future<void> _onCheckAuth(CheckAuthEvent event, Emitter<AuthState> emit) async {
+  Future<void> _onCheckAuth(
+    CheckAuthEvent event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(AuthLoading());
     final user = await authRepository.getCurrentUser();
     user != null ? emit(Authenticated(user)) : emit(Unauthenticated());
@@ -24,6 +28,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       final user = await authRepository.login(event.email, event.password);
       emit(Authenticated(user));
+    } on AuthException catch (e) {
+      emit(AuthError(e.message));
     } catch (e) {
       emit(AuthError(e.toString()));
     }
@@ -32,8 +38,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
-      final user = await authRepository.register(event.name, event.email, event.password);
+      final user = await authRepository.register(
+        event.name,
+        event.email,
+        event.password,
+      );
       emit(Authenticated(user));
+    } on AuthException catch (e) {
+      emit(AuthError(e.message));
     } catch (e) {
       emit(AuthError(e.toString()));
     }

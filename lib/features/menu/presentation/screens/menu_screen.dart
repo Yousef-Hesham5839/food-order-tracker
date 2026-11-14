@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -9,11 +10,11 @@ import '../../../cart/presentation/bloc/cart_event.dart';
 import '../../../cart/presentation/bloc/cart_state.dart';
 import '../../../cart/presentation/screens/cart_screen.dart';
 import '../../../orders/presentation/screens/admin_orders_screen.dart';
+import '../../../orders/presentation/screens/my_orders_screen.dart';
 import '../bloc/menu_bloc.dart';
 import '../bloc/menu_event.dart';
 import '../bloc/menu_state.dart';
 import '../widgets/menu_item_card.dart';
-import '../../../orders/presentation/screens/my_orders_screen.dart';
 
 class MenuScreen extends StatelessWidget {
   const MenuScreen({super.key});
@@ -40,6 +41,16 @@ class MenuScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const AdminOrdersScreen()),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.receipt_long_outlined),
+              tooltip: 'My Orders',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const MyOrdersScreen()),
                 );
               },
             ),
@@ -91,16 +102,6 @@ class MenuScreen extends StatelessWidget {
                 context.read<AuthBloc>().add(LogoutEvent());
               },
             ),
-            IconButton(
-              icon: const Icon(Icons.receipt_long_outlined),
-              tooltip: 'My Orders',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const MyOrdersScreen()),
-                );
-              },
-            ),
           ],
         ),
         body: BlocBuilder<MenuBloc, MenuState>(
@@ -119,19 +120,102 @@ class MenuScreen extends StatelessWidget {
                       style: const TextStyle(color: AppTheme.secondaryColor),
                     ),
                     const SizedBox(height: 12),
-                    ElevatedButton(
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
                       onPressed: () => context.read<MenuBloc>().add(FetchMenuEvent()),
-                      child: const Text('Try Again'),
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Try Again'),
                     ),
                   ],
                 ),
               );
             } else if (state is MenuLoaded) {
               if (state.items.isEmpty) {
-                return const Center(
-                  child: Text(
-                    'No food items found in the menu! 🍔',
-                    style: TextStyle(color: AppTheme.textSecondary, fontSize: 16),
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    context.read<MenuBloc>().add(FetchMenuEvent());
+                  },
+                  child: ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      SizedBox(height: MediaQuery.of(context).size.height * 0.3),
+                      const Center(
+                        child: Text(
+                          'No food items found in the menu! 🍔',
+                          style: TextStyle(color: AppTheme.textSecondary, fontSize: 16),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Center(
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          onPressed: () {
+                            context.read<MenuBloc>().add(FetchMenuEvent());
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Refreshing menu... 🍔'),
+                                duration: Duration(milliseconds: 800),
+                                backgroundColor: AppTheme.primaryColor,
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Refresh Menu'),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Center(
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          onPressed: () async {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Adding sample food items... 🍕'),
+                                duration: Duration(seconds: 1),
+                                backgroundColor: AppTheme.primaryColor,
+                              ),
+                            );
+
+                            final firestore = FirebaseFirestore.instance;
+                            await firestore.collection('menu_items').add({
+                              'name': 'Double Cheese Burger',
+                              'description': 'Juicy beef patty with melted cheddar and special sauce',
+                              'price': 120.0,
+                              'category': 'Burgers',
+                              'imageUrl': 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500',
+                            });
+                            await firestore.collection('menu_items').add({
+                              'name': 'Pepperoni Pizza',
+                              'description': 'Crispy crust with mozzarella and spicy pepperoni',
+                              'price': 160.0,
+                              'category': 'Pizza',
+                              'imageUrl': 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500',
+                            });
+
+                            if (context.mounted) {
+                              context.read<MenuBloc>().add(FetchMenuEvent());
+                            }
+                          },
+                          icon: const Icon(Icons.add),
+                          label: const Text('Add Sample Food 🍔🍕'),
+                        ),
+                      ),
+                    ],
                   ),
                 );
               }

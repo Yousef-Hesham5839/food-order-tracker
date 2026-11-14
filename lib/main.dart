@@ -33,9 +33,15 @@ class MyApp extends StatelessWidget {
         title: 'FoodTrack',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.darkTheme,
-        home: BlocBuilder<AuthBloc, AuthState>(
+                home: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
-            if (state is Authenticated) {
+            if (state is AuthLoading) {
+              return const Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(color: AppTheme.primaryColor),
+                ),
+              );
+            } else if (state is Authenticated) {
               return const MenuScreen();
             }
             return const LoginScreen();

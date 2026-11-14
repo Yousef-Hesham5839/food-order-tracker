@@ -32,10 +32,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       appBar: AppBar(title: const Text('Create Account')),
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is AuthError) {
+          if (state is Authenticated) {
+            Navigator.pop(context);
+          } else if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message),
-                       backgroundColor: AppTheme.secondaryColor),
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: AppTheme.secondaryColor,
+              ),
             );
           }
         },
