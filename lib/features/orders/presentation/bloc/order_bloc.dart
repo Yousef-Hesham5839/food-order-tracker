@@ -13,6 +13,7 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
     on<WatchOrderEvent>(_onWatchOrder);
     on<UpdateOrderStatusEvent>(_onUpdateOrderStatus);
     on<WatchAllOrdersEvent>(_onWatchAllOrders);
+    on<FetchMyOrdersEvent>(_onFetchMyOrders);
   }
 
   Future<void> _onPlaceOrder(PlaceOrderEvent event, Emitter<OrderState> emit) async {
@@ -58,5 +59,16 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
       onData: (orders) => AllOrdersLoaded(orders),
       onError: (error, stackTrace) => OrderError(error.toString()),
     );
-   }
+  }
+
+    Future<void> _onFetchMyOrders(
+      FetchMyOrdersEvent event, Emitter<OrderState> emit) async {
+    emit(OrderLoading());
+    try {
+      final orders = await orderRepository.getMyOrders(event.customerId);
+      emit(MyOrdersLoaded(orders));
+    } catch (e) {
+      emit(OrderError(e.toString()));
+    }
+  }
 }

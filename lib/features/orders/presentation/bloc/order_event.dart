@@ -34,3 +34,11 @@ class UpdateOrderStatusEvent extends OrderEvent {
 }
 
 class WatchAllOrdersEvent extends OrderEvent {}
+
+class FetchMyOrdersEvent extends OrderEvent {
+  final String customerId;
+  const FetchMyOrdersEvent(this.customerId);
+
+  @override
+  List<Object?> get props => [customerId];
+}

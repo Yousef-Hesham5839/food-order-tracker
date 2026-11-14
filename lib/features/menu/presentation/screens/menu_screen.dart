@@ -13,6 +13,7 @@ import '../bloc/menu_bloc.dart';
 import '../bloc/menu_event.dart';
 import '../bloc/menu_state.dart';
 import '../widgets/menu_item_card.dart';
+import '../../../orders/presentation/screens/my_orders_screen.dart';
 
 class MenuScreen extends StatelessWidget {
   const MenuScreen({super.key});
@@ -88,6 +89,16 @@ class MenuScreen extends StatelessWidget {
               tooltip: 'Logout',
               onPressed: () {
                 context.read<AuthBloc>().add(LogoutEvent());
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.receipt_long_outlined),
+              tooltip: 'My Orders',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const MyOrdersScreen()),
+                );
               },
             ),
           ],

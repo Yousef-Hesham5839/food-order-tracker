@@ -43,3 +43,11 @@ class AllOrdersLoaded extends OrderState {
   @override
   List<Object?> get props => [orders];
 }
+
+class MyOrdersLoaded extends OrderState {
+  final List<OrderEntity> orders;
+  const MyOrdersLoaded(this.orders);
+
+  @override
+  List<Object?> get props => [orders];
+}
