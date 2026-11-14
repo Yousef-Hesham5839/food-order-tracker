@@ -7,6 +7,7 @@ import '../../../orders/domain/entities/order_entity.dart';
 import '../../../orders/presentation/bloc/order_bloc.dart';
 import '../../../orders/presentation/bloc/order_event.dart';
 import '../../../orders/presentation/bloc/order_state.dart';
+import '../../../orders/presentation/screens/order_tracking_screen.dart';
 import '../bloc/cart_bloc.dart';
 import '../bloc/cart_event.dart';
 import '../bloc/cart_state.dart';
@@ -20,15 +21,20 @@ class CartScreen extends StatelessWidget {
       listener: (context, state) {
         if (state is OrderPlacedSuccess) {
           context.read<CartBloc>().add(ClearCartEvent());
-          
+
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Order placed successfully! 🍕🎉'),
               backgroundColor: AppTheme.successColor,
             ),
           );
-          
-          Navigator.pop(context);
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => OrderTrackingScreen(orderId: state.orderId),
+            ),
+          );
         } else if (state is OrderError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
