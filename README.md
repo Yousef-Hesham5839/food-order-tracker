@@ -134,16 +134,6 @@ flutter run
 
 ---
 
-## 💼 Resume Pitch
-
-> **FoodTrack — Real-time Food Delivery & Live Order Status Tracker (Flutter, Firebase, BLoC)**
-> - Engineered a real-time reactive order tracking system using Flutter and Cloud Firestore `.snapshots()` streams, eliminating manual page reloads.
-> - Structured codebase using Clean Architecture (Domain, Data, Presentation) and BLoC pattern for robust state management.
-> - Implemented dual-role system (Customer & Restaurant Admin) allowing admins to manipulate stages (`pending` → `delivered`) with immediate client-side timeline reflection.
-> - Integrated GetIt for dependency injection and automated launcher icon pipelines.
-
----
-
 ## 👨‍💻 Author
 **Yousef Hesham**  
 - GitHub: [@Yousef-Hesham5839](https://github.com/Yousef-Hesham5839)
@@ -156,11 +146,11 @@ flutter run
 | :---: | :---: | :---: |
 | <img src="screenshots/1.png" width="240" alt="Login Screen" /> | <img src="screenshots/2.png" width="240" alt="Register Screen" /> | <img src="screenshots/3.png" width="240" alt="Menu Screen" /> |
 
-| 4. Cart & Checkout | 5. Live Tracking (Preparing) | 6. Live Tracking (Delivered) |
+| 4. Cart Changed | 5. Cart | 6. Track Order |
 | :---: | :---: | :---: |
 | <img src="screenshots/4.png" width="240" alt="Cart Changed" /> | <img src="screenshots/5.png" width="240" alt="Cart" /> | <img src="screenshots/6.png" width="240" alt="Track Order" /> |
 
 ### 🍳 Restaurant Admin & History
-| 7. Admin Dashboard | 8. Order Status Update | 9. My Orders History |
+| 7. Admin Dashboard | 8. Admin Controls | 9. My Orders |
 | :---: | :---: | :---: |
 | <img src="screenshots/7.png" width="240" alt="Admin Dashboard" /> | <img src="screenshots/8.png" width="240" alt="Admin Controls" /> | <img src="screenshots/9.png" width="240" alt="My Orders" /> |
